@@ -15,7 +15,7 @@ Settings={
     "channel" : "PARTY",
     "id" : "12345678",
     "name" : "YourCharacterName",
-    "stamp" : "0123456789abcdef0123456789abcdef",
+    "symbol" : "0123456789abcdef0123456789abcdef",
     "offset" : "00:13:22", # "H:M:S" or "M:S"  gl->jp time diff. jp->gl Not supported yet.
     "timezone" : "+09:00" # "[+-]H:M"  local timezone
 }
@@ -76,7 +76,7 @@ def TimeParse(date):
     return buf
 #end TimeParse
 
-match_pattern = '^\d{4}(\-\d{2}){2}T(\d{2}:){2}\d{2}\t\d+\t('+Settings["channel"]+')\t('+Settings["id"]+')\t('+Settings["name"]+')\t('+Settings["stamp"]+')$'
+match_pattern = '^\d{4}(\-\d{2}){2}T(\d{2}:){2}\d{2}\t\d+\t('+Settings["channel"]+')\t('+Settings["id"]+')\t('+Settings["name"]+')\t('+Settings["symbol"]+')$'
 currentPath = ""
 currentDetectCount = 0
 currentFileSize = 0
