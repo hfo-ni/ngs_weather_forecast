@@ -16,7 +16,7 @@ Settings={
     "id" : "12345678",
     "name" : "YourCharacterName",
     "symbol" : "0123456789abcdef0123456789abcdef",
-    "offset" : "00:13:22", # "H:M:S" or "M:S"  gl->jp time diff. jp->gl Not supported yet.
+    "offset" : "+00:13:22", # "[+-]H:M:S" gl->jp offset
     "timezone" : "+09:00" # "[+-]H:M"  local timezone
 }
 Wait_time = 5 #s  FileCheck interval
@@ -33,6 +33,7 @@ twitter_api_url = "https://api.twitter.com/1.1/statuses/update.json"
 DEBUG=False
 
 if DEBUG:
+    print("DEBUG = True")
     tweet_text = "Test tweet\n\n" + tweet_text
 #end if
 
@@ -77,8 +78,15 @@ def CheckProcess():
 #end CheckProcess
 
 def OffsetTime(date):
-    buf = [int(l) for l in Settings["offset"].split(":")]
-    return date + timedelta(hours=(buf[-3] if len(buf)==3 else 0),minutes=buf[-2],seconds=buf[-1])
+    buf = date;
+    if Settings["offset"][0:1] == "+":
+        buf = buf + timedelta(hours=int(Settings["offset"][1:3]),minutes=int(Settings["offset"][4:6]),seconds=int(Settings["offset"][7:9]))
+    elif Settings["offset"][0:1] == "-":
+        buf = buf - timedelta(hours=int(Settings["offset"][1:3]),minutes=int(Settings["offset"][4:6]),seconds=int(Settings["offset"][7:9]))
+    else:
+        buf = buf + timedelta(hours=int(Settings["offset"][0:2]),minutes=int(Settings["offset"][3:5]),seconds=int(Settings["offset"][6:8]))
+    #end if
+    return buf
 #end OffsetTime
 
 def TimeParse(date):
@@ -86,12 +94,16 @@ def TimeParse(date):
         year=int(date[0:4]),month=int(date[5:7]),day=int(date[8:10]),
         hour=int(date[11:13]),minute=int(date[14:16]),second=int(date[17:20])
     )
-    tz = timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
     jp = timedelta(hours=9,minutes=0)
     if Settings["timezone"][0:1] == "+":
+        tz = timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
         buf = buf - tz + jp
     elif Settings["timezone"][0:1] == "-":
+        tz = timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
         buf = buf + tz + jp
+    else:
+        tz = timedelta(hours=int(Settings["timezone"][0:2]),minutes=int(Settings["timezone"][3:5]))
+        buf = buf - tz + jp
     #end if
     return buf
 #end TimeParse
