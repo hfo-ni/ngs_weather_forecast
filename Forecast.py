@@ -78,7 +78,7 @@ def CheckProcess():
 #end CheckProcess
 
 def OffsetTime(date):
-    buf = date;
+    buf = date
     if Settings["offset"][0:1] == "+":
         buf = buf + timedelta(hours=int(Settings["offset"][1:3]),minutes=int(Settings["offset"][4:6]),seconds=int(Settings["offset"][7:9]))
     elif Settings["offset"][0:1] == "-":
