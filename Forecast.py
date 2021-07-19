@@ -3,10 +3,10 @@ import os
 import re
 import sys
 import glob
+import json
 import time
 import subprocess
 from datetime import datetime,timedelta,timezone
-import json
 from requests_oauthlib import OAuth1Session
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -32,14 +32,34 @@ twitter = OAuth1Session(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKE
 twitter_api_url = "https://api.twitter.com/1.1/statuses/update.json"
 DEBUG=False
 
-def Tweet(txt):
-    params = {"status" : txt}
-    res = twitter.post(twitter_api_url, params = params)
-    if res.status_code == 200:
-        print("Tweet Success.")
-    else:
+if DEBUG:
+    tweet_text = "Test tweet\n\n" + tweet_text
+#end if
+
+def Tweet(txt,count):
+    try:
+        twitter = OAuth1Session(CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+        params = {"status" : txt}
+        res = twitter.post(twitter_api_url, params = params)
+        if res.status_code == 200:
+            print("Tweet Success.")
+        else:
+            print("Tweet Failed. : %d"% res.status_code)
+            if count+1 < 3:
+                print("Retrying")
+                time.sleep((count+1)*2)
+                Tweet(txt,count+1)
+            #end if
+        #end if
+    except Exception as e:
+        print(e)
         print("Tweet Failed. : %d"% res.status_code)
-    #end if
+        if count+1 < 3:
+            print("Retrying")
+            time.sleep((count+1)*2)
+            Tweet(txt,count+1)
+        #end if
+    #end try
 #end Tweet
 
 def CheckProcess():
@@ -116,7 +136,7 @@ while True:
                         if DEBUG == True:
                             print('Offset : ' + OffsetDetectTime.strftime('%Y-%m-%d %H:%M:%S'))
                         #end if
-                        Tweet(tweet_text.format(DetectTime=DetectTime.strftime('%Y-%m-%d %H:%M:%S'),OffsetTime=OffsetDetectTime.strftime('%Y-%m-%d %H:%M:%S')))
+                        Tweet(tweet_text.format(DetectTime=DetectTime.strftime('%Y-%m-%d %H:%M:%S'),OffsetTime=OffsetDetectTime.strftime('%Y-%m-%d %H:%M:%S')),0)
                     #end if
                     currentDetectCount = c
                 #end if
