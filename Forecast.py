@@ -18,6 +18,7 @@ Settings={
     "symbol" : "0123456789abcdef0123456789abcdef",
     "offset" : "+00:13:22", # "[+-]H:M:S" gl->jp offset
     "timezone" : "+09:00" # "[+-]H:M"  local timezone
+    "output_timezone" : "+09:00" # "[+-]H:M"
 }
 Wait_time = 5 #s  FileCheck interval
 PSO2_Dir = '.\\PHANTASYSTARONLINE2_NA'
@@ -94,16 +95,20 @@ def TimeParse(date):
         year=int(date[0:4]),month=int(date[5:7]),day=int(date[8:10]),
         hour=int(date[11:13]),minute=int(date[14:16]),second=int(date[17:20])
     )
-    jp = timedelta(hours=9,minutes=0)
+    if Settings["output_timezone"][0:1] == "+":
+        jp = timedelta(hours=int(Settings["output_timezone"][1:3]),minutes=int(Settings["output_timezone"][4:6]))
+    elif Settings["output_timezone"][0:1] == "-":
+        jp = -timedelta(hours=int(Settings["output_timezone"][1:3]),minutes=int(Settings["output_timezone"][4:6]))
+    else:
+        jp = timedelta(hours=int(Settings["output_timezone"][0:2]),minutes=int(Settings["output_timezone"][3:5]))
+    #end if
     if Settings["timezone"][0:1] == "+":
-        tz = timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
-        buf = buf - tz + jp
+        tz = -timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
     elif Settings["timezone"][0:1] == "-":
         tz = timedelta(hours=int(Settings["timezone"][1:3]),minutes=int(Settings["timezone"][4:6]))
-        buf = buf + tz + jp
     else:
-        tz = timedelta(hours=int(Settings["timezone"][0:2]),minutes=int(Settings["timezone"][3:5]))
-        buf = buf - tz + jp
+        tz = -timedelta(hours=int(Settings["timezone"][0:2]),minutes=int(Settings["timezone"][3:5]))
+    buf = buf + tz + jp
     #end if
     return buf
 #end TimeParse
